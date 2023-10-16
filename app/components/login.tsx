@@ -16,8 +16,8 @@ type Props = {
 
 export default function Login(params: Props) {
   const [form, setForm] = useState<FormType>({
-    email: 'demo2@moongift.jp',
-    password: '.@fuEozC8t6k.Ec__Ah',
+    email: '',
+    password: '',
     errorMessage: '',
   });
 
