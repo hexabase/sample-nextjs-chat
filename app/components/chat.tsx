@@ -7,19 +7,13 @@ import { useRouter } from 'next/navigation';
 
 const client = new HexabaseClient();
 
-type FormType = {
-  email: string,
-  password: string
-  errorMessage: string,
-}
-
 type Props = {
 	client: HexabaseClient
 }
 
 export default function Chat(params: Props) {
-	const [rooms, setRooms] = useState<Item[]>([]);
 	const router = useRouter();
+	const [rooms, setRooms] = useState<Item[]>([]);
 
 	useEffect(() => {
 		getRooms();

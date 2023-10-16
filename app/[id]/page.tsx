@@ -14,37 +14,52 @@ type Props = {
 }
 
 export default function Room(props: Props) {
+	// URLから取得できるルームID
 	const { id } = props.params;
+	// ルームのステート
 	const [room, setRoom] = useState<Item | undefined>(undefined);
+	// メッセージのステート
 	const [messages, setMessages] = useState<ItemHistory[]>([]);
+	// 新規入力されたメッセージのステート
 	const [comment, setComment] = useState<string>('');
 
+	// 最初にルームを取得する
   useEffect(() => {
 		getRoom();
   }, []);
 
+	// ルームを取得する処理
 	const getRoom = async () => {
+		// Hexabaseの初期化
 		await initHexabase();
+		// プロジェクト、データストア、アイテム（ルーム）の取得
 		const project = await client.currentWorkspace?.project(process.env.NEXT_PUBLIC_PROJECT_ID!);
 		const datastore = await project?.datastore(process.env.NEXT_PUBLIC_DATASTORE_CHAT_ID!);
 		const room = await datastore?.item(id);
 		if (!room) return;
+		// ルームのステートを更新
 		setRoom(room);
+		// これまでのメッセージを取得
 		setHistory(room);
+		// ルームの更新を監視
 		subscribe(room);
 	};
 
+	// これまでのメッセージを取得する処理
 	const setHistory = async (room: Item) => {
 		const histories = await room?.histories();
-		setMessages((histories || []).filter((history) => history.comment !== '' && history.comment !== '__refresh__'));
+		// 空文字列、または __refresh__ は除外
+		setMessages((histories || [])
+			.filter(history => history.comment !== '' && history.comment !== '__refresh__'));
 	}
 
+	// ルームの更新を監視する処理
 	const subscribe = (room: Item) => {
-		room?.subscribe('update', async (history) => {
-			setHistory(room);
-		});
+		// 更新通知がきたら、これまでのメッセージを取得し直す
+		room?.subscribe('update', history => setHistory(room));
 	}
 
+	// Hexabaseの初期化処理
 	const initHexabase = async () => {
 		const token = localStorage.getItem('token');
 		if (!token) return;
@@ -52,6 +67,7 @@ export default function Room(props: Props) {
 		await client.setWorkspace(process.env.NEXT_PUBLIC_WORKSPACE_ID!);
 	};
 
+	// メッセージを送信する処理
 	const submit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const history = room!.comment();
@@ -60,8 +76,10 @@ export default function Room(props: Props) {
 		setComment('');
 	};
 
+	// メッセージを削除する処理
 	const remove = async (history: ItemHistory) => {
 		await history.delete();
+		// 強制更新させるメッセージを送信
 		const deleteMessage = room!.comment();
 		deleteMessage.set('comment', '__refresh__');
 		await deleteMessage.save();

@@ -41,8 +41,8 @@ export default function Login(params: Props) {
 				<Flex direction="column" background="gray.100" padding={12} rounded={6}>
 				<Heading mb={6}>Log in</Heading>
 					<form onSubmit={login}>
-						<Input type="email" placeholder="メールアドレス" variant="filled" value={form.email} onChange={change} />
-						<Input type="password" placeholder="パスワード" variant="filled" value={form.password} onChange={change} />
+						<Input type="email" id="email" placeholder="メールアドレス" variant="filled" value={form.email} onChange={change} />
+						<Input type="password" id="password" placeholder="パスワード" variant="filled" value={form.password} onChange={change} />
 						{form.errorMessage && <p>{form.errorMessage}</p>}
 						<Button mb={6} colorScheme="teal" onClick={login}>Log in</Button>
 					</form>
